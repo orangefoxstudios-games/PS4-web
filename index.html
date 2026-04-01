@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>PS4 Menu Mock</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(120deg, #0b1d3a, #1a3c6e);
+      font-family: Arial, sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    /* Экран включения */
+    #powerScreen {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .powerBtn {
+      padding: 20px 40px;
+      font-size: 22px;
+      border: none;
+      border-radius: 10px;
+      background: #1e90ff;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .powerBtn:hover {
+      transform: scale(1.1);
+    }
+
+    .accounts {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      gap: 40px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .accounts.active {
+      opacity: 1;
+    }
+
+    .account {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .account:hover {
+      transform: scale(1.1);
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .name {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<audio id="startupSound" src="ps4-startup.mp3"></audio>
+
+<!-- Экран включения -->
+<div id="powerScreen">
+  <button class="powerBtn" onclick="startApp()">Включить PS4</button>
+</div>
+
+<!-- Аккаунты -->
+<div class="accounts" id="accounts">
+  <div class="account" onclick="selectUser('User 1')">
+    <div class="avatar">🎮</div>
+    <div class="name">User 1</div>
+  </div>
+
+  <div class="account" onclick="selectUser('User 2')">
+    <div class="avatar">👾</div>
+    <div class="name">User 2</div>
+  </div>
+
+  <div class="account" onclick="selectUser('Guest')">
+    <div class="avatar">+</div>
+    <div class="name">Guest</div>
+  </div>
+</div>
+
+<script>
+  const audio = document.getElementById('startupSound');
+
+  function startApp() {
+    audio.play();
+
+    document.getElementById('powerScreen').style.display = 'none';
+
+    const accounts = document.getElementById('accounts');
+    accounts.classList.add('active');
+  }
+
+  function selectUser(name) {
+    alert('Вы выбрали: ' + name);
+  }
+</script>
+
+</body>
+</html>
