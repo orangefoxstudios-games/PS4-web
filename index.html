@@ -6,13 +6,12 @@
   <style>
     body {
       margin: 0;
-      background: linear-gradient(120deg, #0b1d3a, #1a3c6e);
+      background: linear-gradient(#1b4fa3, #0a2a6b);
       font-family: Arial, sans-serif;
       color: white;
       overflow: hidden;
     }
 
-    /* Экран включения */
     #powerScreen {
       position: fixed;
       width: 100%;
@@ -27,56 +26,57 @@
     .powerBtn {
       padding: 20px 40px;
       font-size: 22px;
+      border-radius: 50px;
       border: none;
-      border-radius: 10px;
-      background: #1e90ff;
+      background: #0af;
       color: white;
-      cursor: pointer;
-      transition: 0.2s;
     }
 
-    .powerBtn:hover {
-      transform: scale(1.1);
+    .container {
+      padding: 60px;
+    }
+
+    .title {
+      font-size: 22px;
+      margin-bottom: 40px;
+      opacity: 0.9;
     }
 
     .accounts {
       display: flex;
-      justify-content: center;
+      gap: 30px;
       align-items: center;
-      height: 100vh;
-      gap: 40px;
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
-
-    .accounts.active {
-      opacity: 1;
     }
 
     .account {
+      width: 140px;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .account:hover {
-      transform: scale(1.1);
     }
 
     .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.2);
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 40px;
       margin-bottom: 10px;
+      transition: 0.2s;
+    }
+
+    .account.selected .avatar {
+      outline: 3px solid white;
+      transform: scale(1.05);
     }
 
     .name {
-      font-size: 18px;
+      font-size: 16px;
+    }
+
+    .addUser {
+      font-size: 60px;
     }
   </style>
 </head>
@@ -84,43 +84,80 @@
 
 <audio id="startupSound" src="ps4-startup.mp3"></audio>
 
-<!-- Экран включения -->
 <div id="powerScreen">
-  <button class="powerBtn" onclick="startApp()">Включить PS4</button>
+  <button class="powerBtn" onclick="startApp()">Включить</button>
 </div>
 
-<!-- Аккаунты -->
-<div class="accounts" id="accounts">
-  <div class="account" onclick="selectUser('User 1')">
-    <div class="avatar">🎮</div>
-    <div class="name">User 1</div>
-  </div>
-
-  <div class="account" onclick="selectUser('User 2')">
-    <div class="avatar">👾</div>
-    <div class="name">User 2</div>
-  </div>
-
-  <div class="account" onclick="selectUser('Guest')">
-    <div class="avatar">+</div>
-    <div class="name">Guest</div>
-  </div>
+<div class="container" id="main" style="display:none">
+  <div class="title">Кто использует этот контроллер?</div>
+  <div class="accounts" id="accounts"></div>
 </div>
 
 <script>
   const audio = document.getElementById('startupSound');
+  const accountsDiv = document.getElementById('accounts');
+
+  let users = JSON.parse(localStorage.getItem('ps4_users')) || [];
+  let selectedIndex = 0;
+
+  function saveUsers() {
+    localStorage.setItem('ps4_users', JSON.stringify(users));
+  }
+
+  function renderUsers() {
+    accountsDiv.innerHTML = '';
+
+    // кнопка добавления всегда первая
+    const add = document.createElement('div');
+    add.className = 'account';
+    add.innerHTML = `
+      <div class="avatar addUser">+</div>
+      <div class="name">Новый</div>
+    `;
+    add.onclick = createUser;
+    accountsDiv.appendChild(add);
+
+    users.forEach((user, index) => {
+      const el = document.createElement('div');
+      el.className = 'account' + (index === selectedIndex ? ' selected' : '');
+
+      el.innerHTML = `
+        <div class="avatar">${user.icon || '🙂'}</div>
+        <div class="name">${user.name}</div>
+      `;
+
+      el.onclick = () => selectUser(index);
+      accountsDiv.appendChild(el);
+    });
+  }
+
+  function createUser() {
+    const name = prompt('Имя пользователя');
+    if (!name) return;
+
+    users.unshift({ name, icon: '🙂' });
+    selectedIndex = 0;
+
+    saveUsers();
+    renderUsers();
+  }
+
+  function selectUser(index) {
+    const selected = users.splice(index, 1)[0];
+    users.unshift(selected);
+    selectedIndex = 0;
+
+    saveUsers();
+    renderUsers();
+  }
 
   function startApp() {
     audio.play();
 
     document.getElementById('powerScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
 
-    const accounts = document.getElementById('accounts');
-    accounts.classList.add('active');
-  }
-
-  function selectUser(name) {
-    alert('Вы выбрали: ' + name);
+    renderUsers();
   }
 </script>
 
